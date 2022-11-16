@@ -1,7 +1,9 @@
-from rest_framework import serializers
-from .models import *
 from pygments.lexers import get_all_lexers
 from pygments.styles import get_all_styles
+from rest_framework import serializers
+
+from .models import *
+
 
 class TodoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -18,7 +20,13 @@ class SnippetSerializer(serializers.Serializer):
     code = serializers.CharField(style={'base_template': 'textarea.html'})
     linenos = serializers.BooleanField(required=False)
     language = serializers.ChoiceField(choices=LANGUAGE_CHOICES, default='python')
+    image = models.ImageField()
     style = serializers.ChoiceField(choices=STYLE_CHOICES, default='friendly')
+
+    class Meta:
+        url = serializers.HyperlinkedIdentityField(view_name="SnippetList")
+        model = Snippet
+        fields = '__all__'
 
     def create(self, validated_data):
         """
@@ -35,8 +43,22 @@ class SnippetSerializer(serializers.Serializer):
         instance.linenos = validated_data.get('linenos', instance.linenos)
         instance.language = validated_data.get('language', instance.language)
         instance.style = validated_data.get('style', instance.style)
+        instance.image = validated_data.get('image', instance.image)
+
         instance.save()
         return instance
+
+
+
+
+class SnippetSerializerLink(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Snippet
+        fields = ['id', 'title', 'code', 'linenos', 'language', 'image', 'style', 'url']
+        # specify read only fields
+        read_only_fields = ['title']
+        
+
 
 
 

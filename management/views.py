@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import permissions
 from .models import *
-from .serializers import TodoSerializer, SnippetSerializer, RegistrationSerializer
+from .serializers import TodoSerializer, SnippetSerializer, RegistrationSerializer, SnippetSerializerLink
 from rest_framework import generics
 from rest_framework.decorators import api_view
 from rest_framework import renderers
@@ -85,7 +85,7 @@ class TodoListApiView(APIView):
 
 class TodoDetailApiView(APIView):
     # add permission to check if user is authenticated
-    permission_classes = [permissions.IsAuthenticated]
+    #permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self, todo_id, user_id):
         '''
@@ -151,6 +151,8 @@ class TodoDetailApiView(APIView):
         )
 
 #Generic_view 
+from rest_framework.parsers import MultiPartParser, FormParser
+
 class SnippetList(generics.ListCreateAPIView):
     queryset = Snippet.objects.all()
     serializer_class = SnippetSerializer
@@ -167,7 +169,7 @@ class SnippetDetail(generics.RetrieveUpdateDestroyAPIView):
 class SnippetViewSet(viewsets.ModelViewSet):
     queryset = Snippet.objects.all()
     serializer_class = SnippetSerializer   # we not need to worry about crud method here, the viewsets code is enough   
-    
+
     #@detail_route(renderer_classes=[renderers.StaticHTMLRenderer])
     def highlight(self, request, *args, **kwargs):
         snippet = self.get_object()
@@ -176,6 +178,9 @@ class SnippetViewSet(viewsets.ModelViewSet):
     def pre_save(self, obj):
         obj.owner = self.request.user
 
-
+#SnippetSerializerLink
+class SnippetSerializerLink(viewsets.ModelViewSet):
+    queryset = Snippet.objects.all()
+    serializer_class = SnippetSerializerLink 
 
 
